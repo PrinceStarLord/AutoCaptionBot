@@ -1,74 +1,86 @@
 from pyrogram import Client, filters
+from pyrogram.errors import FloodWait, MessageNotModified
 import asyncio
-from config import *
+import re
+from config import API_ID, API_HASH, BOT_TOKEN, CUSTOM_CAPTION
 
-app = Client(
-    "app",
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN
-)
+app = Client("autocaption-bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-start_message = """
-<b>Hello {} 👋,</b>\n
-<b>I am an AutoCaption Bot</b>"""
+message_queue = []
 
-help_message = """
-<b>Commands :</b>\n
-<b>/set_caption : set customised Caption.</b>\n
-<b>You can use :</b> <code>{file_name}</code>\n
-<b>You can also use <a href='https://core.telegram.org/api/entities#allowed-entities'>HTML Markdown tags</a></b>
-"""
+REMOVE_WORDS = [
+    'R∆G∆ ', 'join', 'psa', 'https', 'http', 'Full Bollywood Movie', 'Bollywood', 'ViSTA', 'MoviesMod',
+    '(Mᴏᴏɴ Kɴɪɢʜᴛ)', 'L3G3N7', 'telegram', 'm2links', "join us", "Join Us", "t.me", "mkvcinemas", "movies",
+    "moviesmod", "moviesflix", "Desiremovies", "mkvc", "cinevood", "@m2links", "skymovieshd", "(dedsincebirth)","Full", "movie","MoviesUP","Hollywood"
+]
+
+def clean_caption(caption: str) -> str:
+    match = re.search(r"(.*?\b(?:mkv|mp4)\b)", caption, re.IGNORECASE)
+    if match:
+        caption = match.group(1)
+    else:
+        match = re.search(r"(.*?\b(?:esub|esubs|msub|msubs)\b)", caption, re.IGNORECASE)
+        if match:
+            caption = match.group(1)
+    caption = re.sub(r'\b(mkv|mp4)\b', '', caption, flags=re.IGNORECASE)
+    for word in REMOVE_WORDS:
+        caption = re.sub(re.escape(word), '', caption, flags=re.IGNORECASE)
+    caption = re.sub(r'[_\-\|\+\[\]\{\}~#$]', ' ', caption)
+    caption = caption.replace('.', ' ')
+    return ' '.join(caption.split())
 
 @app.on_message(filters.private & filters.command(["start"]))
-async def start_command(_, update):
-    await update.reply_text(start_message.format(update.from_user.mention), disable_web_page_preview=True)
+async def start_command(_, message):
+    await message.reply_text(f"<b>Hello {message.from_user.mention},</b>\n\n<b>I am an AutoCaption Bot 🤖</b>")
 
 @app.on_message(filters.private & filters.command(["help"]))
-async def start_command(_, update):
-    await update.reply_text(help_message, disable_web_page_preview=True)
-
-@app.on_message(filters.private & filters.command(["add_capt","add","add_caption","set_caption"]))
-async def add_caption_command(_, update):
-    await update.reply_text("<b>Send me the new custom caption</b>")
-
-@app.on_message(filters.private & ~filters.command(["start", "add_capt"]))
-async def set_custom_caption(_, update):
-    global CUSTOM_CAPTION
-    CUSTOM_CAPTION = update.text
-    await update.reply_text("<b>Custom caption set successfully!</b>")
+async def help_command(_, message):
+    await message.reply_text("<b>Send media to a channel and I will edit the caption automatically.</b>")
 
 @app.on_message(filters.channel)
-async def edit_caption(_, update):
-    media_obj, _ = get_file_details(update)
-    try:
-        await update.edit_caption(caption=CUSTOM_CAPTION.format(file_name=media_obj.file_name))
-    except asyncio.exceptions.TimeoutError as TimeoutError:
-        await asyncio.sleep(TimeoutError)
-        await update.edit_caption(caption=CUSTOM_CAPTION.format(file_name=media_obj.file_name))
+async def queue_message(_, message):
+    message_queue.append({
+        "chat_id": message.chat.id,
+        "message_id": message.id,
+        "caption": message.caption or ""
+    })
 
+async def process_queue():
+    while True:
+        if message_queue:
+            msg = message_queue.pop(0)
+            cleaned = clean_caption(msg["caption"])
+            final_caption = CUSTOM_CAPTION.format(file_caption=cleaned)
+            try:
+                await app.edit_message_caption(
+                    chat_id=msg["chat_id"],
+                    message_id=msg["message_id"],
+                    caption=final_caption
+                )
+                print(f"[✅ Edited] {msg['message_id']}")
+            except MessageNotModified:
+                print(f"[⚠️ Already Clean] Message {msg['message_id']}")
+            except FloodWait as e:
+                print(f"[⏳ FloodWait] Waiting {e.value} sec...")
+                await asyncio.sleep(e.value + 1)
+                message_queue.insert(0, msg)
+            except Exception as e:
+                print(f"[❌ ERROR] {e} | Msg ID: {msg['message_id']}")
+        await asyncio.sleep(1)
 
-def get_file_details(update):
-    if update.media:
-        for message_type in (
-                "photo",
-                "animation",
-                "audio",
-                "document",
-                "video",
-                "video_note",
-                "voice",
-                # "contact",
-                # "dice",
-                # "poll",
-                # "location",
-                # "venue",
-                # "sticker"
-        ):
-            obj = getattr(update, message_type)
-            if obj:
-                return obj, obj.file_id
+@app.on_message(filters.command("status") & filters.user(6167872503))
+async def queue_status(_, message):
+    await message.reply_text(f"📦 Messages in queue: {len(message_queue)}")
 
-print("Bot Started..")
+from pyrogram import idle
+import asyncio
 
-app.run()
+async def main():
+    print("Bot is running...")
+    await app.start()
+    asyncio.create_task(process_queue())
+    await idle()
+    await app.stop()
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
