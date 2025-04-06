@@ -1,2 +1,4 @@
-pyrogram
-tgcrypto==1.2.3
+Flask
+gunicorn
+aiohttp
+pyrotgfork[fast]
