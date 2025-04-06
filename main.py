@@ -1,7 +1,7 @@
-from pyrogram import Client, filters
-from pyrogram.errors import FloodWait, MessageNotModified
 import asyncio
 import re
+from pyrogram import Client, filters, idle
+from pyrogram.errors import FloodWait, MessageNotModified
 from config import API_ID, API_HASH, BOT_TOKEN, CUSTOM_CAPTION, ADMIN
 
 app = Client("autocaption-bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
