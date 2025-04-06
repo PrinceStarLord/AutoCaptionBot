@@ -29,16 +29,13 @@ cd autocaption-bot
 pip3 install -r requirements.txt
 ```
 3. Edit a config.py File
-
+```
 API_ID = "your_api_id"
-
 API_HASH = "your_api_hash"
-
 BOT_TOKEN = "your_bot_token"
-
 ADMIN = "admin_id"
-
 CUSTOM_CAPTION = "🎬 {file_caption}"
+```
 
 4. Run the Bot Locally
 ```bash
