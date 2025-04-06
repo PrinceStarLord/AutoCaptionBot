@@ -1,44 +1,99 @@
-# AutoCaptionBot
+# 🤖 AutoCaption Bot
 
-AutoCaptionBot is a Telegram bot created using Pyrogram that automatically adds captions to media files posted in channels.
+A simple Telegram bot that **automatically edits captions** of media sent in a channel using [Pyrogram v2.x](https://docs.pyrogram.org/).
 
-## Features
+---
 
-- Automatically adds captions to photos, videos, animations, documents, audios, and other supported media types.
-- Customizable caption format.
-- Start command to greet users.
+## ✨ Features
 
-## Requirements Variables
+- ✅ Cleans and formats media captions in Telegram channels  
+- ✅ Removes unwanted spammy keywords and tags  
+- ✅ Custom caption formatting (`{file_caption}`)  
+- ✅ Simple message queue system  
+- ✅ `/start`, `/help`, and `/status` commands  
 
-```
-API_ID=452525
-API_HASH=esx576f8738x883f3sfzx83
-BOT_TOKEN=55838383:yourtbottokenhere
-CUSTOM_CAPTION={file_name}
-```
-For `CUSTOM_CAPTION` you may use `{file_name}` & you can also use <a href='https://core.telegram.org/api/entities#allowed-entities'> html Markdown tags.</a>
+---
 
-## VPS Installation
+## 🚀 Getting Started
 
-```git clone https://github.com/PrinceStarLord/AutoCaptionBot```
+### 1. Clone the Repository
 
-```cd AutoCaptionBot```
+```bash
+git clone https://github.com/yourusername/autocaption-bot.git
+cd autocaption-bot
+2. Install Requirements
+bash
+Copy
+Edit
+pip install -r requirements.txt
+3. Create a config.py File
+python
+Copy
+Edit
+# config.py
+API_ID = "your_api_id"
+API_HASH = "your_api_hash"
+BOT_TOKEN = "your_bot_token"
+CUSTOM_CAPTION = "🎬 {file_caption}"
+Get your API credentials from my.telegram.org
 
-Set up `config.py` file.
+4. Run the Bot Locally
+bash
+Copy
+Edit
+python main.py
+☁️ Deploy to Koyeb
+1. Create a New App on Koyeb
+Choose "GitHub" as your deployment source
 
-```nano config.py```
+Select your forked repo
 
-CTR + X
+Choose "Python" as the environment
 
-```python3 main.py```
+Set the run command to:
 
-## Contributing
+bash
+Copy
+Edit
+python main.py
+2. Add Environment Variables on Koyeb
+Instead of using config.py, you can modify your code to read from environment variables or use .env with python-dotenv.
 
-Contributions are welcome! Feel free to open issues or submit pull requests.
+Add these vars in Koyeb dashboard:
 
-## License
+API_ID
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+API_HASH
 
-## Credits 
-Thanks to <a href='https://github.com/PR0FESS0R-99'>PR0FESS0R-99</a> & me.
+BOT_TOKEN
+
+CUSTOM_CAPTION
+
+✅ Tip: Use os.environ.get("API_ID") etc. in your config.py to load these.
+
+🛠 Deploy to Heroku (Optional)
+Make sure you have a Procfile:
+
+makefile
+Copy
+Edit
+worker: python main.py
+Then push to your Heroku app using Git or the Heroku CLI.
+
+🧹 How Caption Cleaning Works
+The bot removes keywords like:
+
+text
+Copy
+Edit
+"join", "t.me", "moviesmod", "mkvcinemas", "Bollywood", "movie", "Hollywood", etc.
+And also removes unwanted characters like |, ~, [], etc.
+
+Customize the list in main.py under REMOVE_WORDS.
+
+📦 Commands
+/start – Greet the user
+
+/help – Shows usage
+
+/status – Shows queue size (admin only)
