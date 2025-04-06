@@ -16,7 +16,7 @@ A simple Telegram bot that **automatically edits captions** of media sent in a c
 
 ## 🚀 Vps/Local Deployment
 
-### 1. Clone the Repository
+1. Clone the Repository
 
 ```bash
 git clone https://github.com/PrinceStarLord/AutoCaptionBot.git
@@ -29,16 +29,16 @@ cd autocaption-bot
 pip3 install -r requirements.txt
 ```
 3. Edit a config.py File
-#### config.py
-### API_ID = "your_api_id"
 
-### API_HASH = "your_api_hash"
+API_ID = "your_api_id"
 
-### BOT_TOKEN = "your_bot_token"
+API_HASH = "your_api_hash"
 
-### ADMIN = "admin_id"
+BOT_TOKEN = "your_bot_token"
 
-### CUSTOM_CAPTION = "🎬 {file_caption}"
+ADMIN = "admin_id"
+
+CUSTOM_CAPTION = "🎬 {file_caption}"
 
 4. Run the Bot Locally
 ```bash
@@ -65,5 +65,7 @@ Customize the list in main.py under REMOVE_WORDS.
 
 ## 📦 Commands
 /start – Greet the user
+
 /help – Shows usage
+
 /status – Shows queue messages (admin only)
