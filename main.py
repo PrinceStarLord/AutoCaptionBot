@@ -72,9 +72,6 @@ async def process_queue():
 async def queue_status(_, message):
     await message.reply_text(f"📦 Messages in queue: {len(message_queue)}")
 
-from pyrogram import idle
-import asyncio
-
 async def main():
     print("Bot is running...")
     await app.start()
