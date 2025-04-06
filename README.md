@@ -31,10 +31,15 @@ pip3 install -r requirements.txt
 3. Edit a config.py File
 ## config.py
 API_ID = "your_api_id"
+
 API_HASH = "your_api_hash"
+
 BOT_TOKEN = "your_bot_token"
+
 ADMIN = "admin_id"
+
 CUSTOM_CAPTION = "🎬 {file_caption}"
+
 Get your API credentials from my.telegram.org
 
 4. Run the Bot Locally
@@ -42,7 +47,7 @@ Get your API credentials from my.telegram.org
 python3 main.py
 ```
 ---
-##☁️ Deploy to Koyeb
+## ☁️ Deploy to Koyeb
 1. Create a New App on Koyeb
 Choose "GitHub" as your deployment source
 
@@ -60,7 +65,7 @@ CUSTOM_CAPTION = "🎬 {file_caption}"
 
 Customize the list in main.py under REMOVE_WORDS.
 
-📦 Commands
+## 📦 Commands
 /start – Greet the user
 /help – Shows usage
 /status – Shows queue messages (admin only)
