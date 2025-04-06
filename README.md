@@ -33,7 +33,7 @@ pip3 install -r requirements.txt
 API_ID = "your_api_id"
 API_HASH = "your_api_hash"
 BOT_TOKEN = "your_bot_token"
-ADMIN = "admin_id"
+ADMINS = "admin_id"
 CUSTOM_CAPTION = "🎬 {file_caption}"
 ```
 
@@ -52,7 +52,7 @@ Choose "GitHub" as your deployment source
 API_ID = "your_api_id"
 API_HASH = "your_api_hash"
 BOT_TOKEN = "your_bot_token"
-ADMIN = "admin_id"
+ADMINS = "admin_id"
 CUSTOM_CAPTION = "🎬 {file_caption}"
 ```
 4. Under Builder - add this run command ```gunicorn app:app & python3 main.py```
