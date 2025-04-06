@@ -29,18 +29,16 @@ cd autocaption-bot
 pip3 install -r requirements.txt
 ```
 3. Edit a config.py File
-## config.py
-API_ID = "your_api_id"
+#### config.py
+### API_ID = "your_api_id"
 
-API_HASH = "your_api_hash"
+### API_HASH = "your_api_hash"
 
-BOT_TOKEN = "your_bot_token"
+### BOT_TOKEN = "your_bot_token"
 
-ADMIN = "admin_id"
+### ADMIN = "admin_id"
 
-CUSTOM_CAPTION = "🎬 {file_caption}"
-
-Get your API credentials from my.telegram.org
+### CUSTOM_CAPTION = "🎬 {file_caption}"
 
 4. Run the Bot Locally
 ```bash
