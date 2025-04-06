@@ -1,6 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait, MessageNotModified
 import asyncio
+from pyrogram import idle
 import re
 from config import API_ID, API_HASH, BOT_TOKEN, CUSTOM_CAPTION
 
@@ -72,9 +73,6 @@ async def process_queue():
 async def queue_status(_, message):
     await message.reply_text(f"📦 Messages in queue: {len(message_queue)}")
 
-from pyrogram import idle
-import asyncio
-
 async def main():
     print("Bot is running...")
     await app.start()
@@ -82,5 +80,6 @@ async def main():
     await idle()
     await app.stop()
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
+if __name__ == "__main__":
+    asyncio.run(main())
+
