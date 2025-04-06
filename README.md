@@ -20,6 +20,8 @@ A simple Telegram bot that **automatically edits captions** of media sent in a c
 
 ```bash
 git clone https://github.com/PrinceStarLord/AutoCaptionBot.git
+```
+```
 cd autocaption-bot
 ```
 2. Install Requirements
@@ -27,7 +29,7 @@ cd autocaption-bot
 pip3 install -r requirements.txt
 ```
 3. Edit a config.py File
-# config.py
+## config.py
 API_ID = "your_api_id"
 API_HASH = "your_api_hash"
 BOT_TOKEN = "your_bot_token"
@@ -40,12 +42,12 @@ Get your API credentials from my.telegram.org
 python3 main.py
 ```
 ---
-☁️ Deploy to Koyeb
+##☁️ Deploy to Koyeb
 1. Create a New App on Koyeb
 Choose "GitHub" as your deployment source
 
-1. Paste your repo link into Public GitHub repository
-2. Under Environment variables add all below Vars
+2. Paste your repo link into Public GitHub repository
+3. Under Environment variables add all below Vars
 ```bash
 API_ID = "your_api_id"
 API_HASH = "your_api_hash"
@@ -53,8 +55,8 @@ BOT_TOKEN = "your_bot_token"
 ADMIN = "admin_id"
 CUSTOM_CAPTION = "🎬 {file_caption}"
 ```
-3. Under Builder - add this run command ```gunicorn app:app & python3 main.py```
-4. Save & Deploy.
+4. Under Builder - add this run command ```gunicorn app:app & python3 main.py```
+5. Save & Deploy.
 
 Customize the list in main.py under REMOVE_WORDS.
 
