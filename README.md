@@ -58,7 +58,7 @@ CUSTOM_CAPTION = "🎬 {file_caption}"
 4. Under Builder - add this run command ```gunicorn app:app & python3 main.py```
 5. Save & Deploy.
 
-Customize the list in main.py under REMOVE_WORDS.
+Customize the list in main.py under <a href="#main.py#L11">REMOVE_WORDS</a>.
 
 ## 📦 Commands
 /start – Greet the user
