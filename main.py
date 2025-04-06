@@ -11,7 +11,8 @@ message_queue = []
 REMOVE_WORDS = [
     'R∆G∆ ', 'join', 'psa', 'https', 'http', 'Full Bollywood Movie', 'Bollywood', 'ViSTA', 'MoviesMod',
     '(Mᴏᴏɴ Kɴɪɢʜᴛ)', 'L3G3N7', 'telegram', 'm2links', "join us", "Join Us", "t.me", "mkvcinemas", "movies",
-    "moviesmod", "moviesflix", "Desiremovies", "mkvc", "cinevood", "@m2links", "skymovieshd", "(dedsincebirth)","Full", "movie","MoviesUP","Hollywood"
+    "moviesmod", "moviesflix", "Desiremovies", "mkvc", "cinevood", "@m2links", "skymovieshd", "(dedsincebirth)",
+    "Full", "movie", "MoviesUP", "Hollywood"
 ]
 
 def clean_caption(caption: str) -> str:
@@ -72,14 +73,16 @@ async def process_queue():
 async def queue_status(_, message):
     await message.reply_text(f"📦 Messages in queue: {len(message_queue)}")
 
-async def main():
+def main():
     print("Bot is running...")
-    await app.start()
-    asyncio.create_task(process_queue())
-    await idle()
-    await app.stop()
+
+    async def runner():
+        await app.start()
+        asyncio.create_task(process_queue())
+        await idle()
+        await app.stop()
+
+    app.run(runner())
 
 if __name__ == "__main__":
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(main())
+    main()
