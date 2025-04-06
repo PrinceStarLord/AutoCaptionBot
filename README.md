@@ -58,7 +58,7 @@ CUSTOM_CAPTION = "🎬 {file_caption}"
 4. Under Builder - add this run command ```gunicorn app:app & python3 main.py```
 5. Save & Deploy.
 
-Customize the list in main.py under <a href="#main.py#L11">REMOVE_WORDS</a>.
+Customize the list in [main.py](https://github.com/PrinceStarLord/AutoCaptionBot/blob/945d33c938f712ecaff001f2ec0ed0c9581f6821/main.py#L11)
 
 ## 📦 Commands
 /start – Greet the user
