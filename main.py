@@ -5,7 +5,12 @@ from pyrogram import idle
 import re
 from config import API_ID, API_HASH, BOT_TOKEN, CUSTOM_CAPTION
 
-app = Client("autocaption-bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+app = Client(
+    session_name=None,
+    api_id=API_ID,
+    api_hash=API_HASH,
+    bot_token=BOT_TOKEN
+)
 
 message_queue = []
 
