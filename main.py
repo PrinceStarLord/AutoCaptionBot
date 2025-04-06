@@ -2,7 +2,7 @@ import asyncio
 import re
 from pyrogram import Client, filters, idle
 from pyrogram.errors import FloodWait, MessageNotModified
-from config import API_ID, API_HASH, BOT_TOKEN, CUSTOM_CAPTION, ADMIN
+from config import API_ID, API_HASH, BOT_TOKEN, CUSTOM_CAPTION, ADMINS
 
 app = Client("autocaption-bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
@@ -68,7 +68,7 @@ async def process_queue():
                 print(f"[❌ ERROR] {e} | Msg ID: {msg['message_id']}")
         await asyncio.sleep(1)
 
-@app.on_message(filters.command("status") & filters.user(ADMIN))
+@app.on_message(filters.command("status") & filters.user(ADMINS))
 async def queue_status(_, message):
     await message.reply_text(f"📦 Messages in queue: {len(message_queue)}")
 
