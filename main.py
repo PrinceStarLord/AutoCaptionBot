@@ -10,12 +10,12 @@ message_queue = []
 
 REMOVE_WORDS = [
     'R∆G∆ ', 'join', 'psa', 'https', 'http', 'Full Bollywood Movie', 'Bollywood', 'ViSTA', 'MoviesMod',
-    '(Mᴏᴏɴ Kɴɪɢʜᴛ)', 'L3G3N7', 'telegram', 'm2links', "join us", "Join Us", "t.me", "mkvcinemas", "movies",
+    '(Mᴏᴏɴ Kɴɪɢʜᴛ)', 'L3G3N7', 'telegram', 'm2links', "join us", "Join Us", "t.me", "mkvcinemas",
     "moviesmod", "moviesflix", "Desiremovies", "mkvc", "cinevood", "@m2links", "skymovieshd", "(dedsincebirth)",
-    "Full", "movie", "MoviesUP", "Hollywood"
+    "Full", "movie", "MoviesUP", "Hollywood", "CrickeTLoveRR", "Dual Audio"
 ]
 
-def clean_caption(caption: str) -> str:
+def clean_caption(caption: str) -> str:0
     match = re.search(r"(.*?\b(?:mkv|mp4)\b)", caption, re.IGNORECASE)
     if match:
         caption = match.group(1)
