@@ -15,7 +15,7 @@ REMOVE_WORDS = [
     "Full", "MoviesUP", "Hollywood", "CrickeTLoveRR", "Dual Audio"
 ]
 
-def clean_caption(caption: str) -> str:0
+def clean_caption(caption: str) -> str:
     match = re.search(r"(.*?\b(?:mkv|mp4)\b)", caption, re.IGNORECASE)
     if match:
         caption = match.group(1)
