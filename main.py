@@ -41,6 +41,12 @@ LANG_KEYWORDS = {
     "vietnamese": "Vietnamese"
 }
 
+REMOVE_WORDS = [
+    "dual", "audio", "aac", "ddp", "hevc", "x265", "web", "dl",
+    "esub", "subs", "sub", "amzn", "nf", "hdrip", "bluray",
+    "join", "telegram", "t.me", "@m2links"
+]
+
 def infer_languages_from_caption(caption: str) -> str:
     if not caption:
         return ""
@@ -51,9 +57,17 @@ def infer_languages_from_caption(caption: str) -> str:
             langs.add(value)
     return ", ".join(sorted(langs))
 
+def clean_caption(caption: str) -> str:
+    caption = re.sub(r'\b(mkv|mp4)\b', '', caption, flags=re.IGNORECASE)
+    for word in REMOVE_WORDS:
+        caption = re.sub(rf"\b{re.escape(word)}\b", "", caption, flags=re.IGNORECASE)
+    caption = re.sub(r'[_\-\|\+\[\]\{\}~#$&]', ' ', caption)
+    caption = caption.replace('.', ' ')
+    return ' '.join(caption.split())
+
 @app.on_message(filters.channel)
 async def queue_message(_, message):
-    if not (message.video or message.document or message.audio):
+    if not (message.video or message.document):
         return
     message_queue.append(message)
 
@@ -62,18 +76,21 @@ async def process_queue():
         if message_queue:
             msg = message_queue.pop(0)
 
-            original_caption = msg.caption or ""
-            languages = infer_languages_from_caption(original_caption)
+            # 🔑 STEP 1: detect languages from ORIGINAL caption
+            languages = infer_languages_from_caption(msg.caption or "")
+
+            # 🔑 STEP 2: clean title separately
+            cleaned_title = clean_caption(msg.caption or "")
 
             if languages:
                 final_caption = CUSTOM_CAPTION.format(
-                    file_caption=original_caption,
+                    file_caption=cleaned_title,
                     languages=languages
                 )
             else:
                 final_caption = CUSTOM_CAPTION.replace(
                     "\n<b>Audio : {languages}</b>", ""
-                ).format(file_caption=original_caption)
+                ).format(file_caption=cleaned_title)
 
             try:
                 await app.edit_message_caption(
