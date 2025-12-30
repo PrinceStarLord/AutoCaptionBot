@@ -28,9 +28,73 @@ LANG_MAP = {
     "es": "Spanish",
     "fr": "French",
     "de": "German",
+    "it": "Italian",
+    "pt": "Portuguese",
+    "ru": "Russian",
     "ja": "Japanese",
     "ko": "Korean",
-    "zh": "Chinese"
+    "zh": "Chinese",
+    "ar": "Arabic",
+    "tr": "Turkish",
+    "th": "Thai",
+    "id": "Indonesian",
+    "tl": "Filipino",
+    "nl": "Dutch",
+    "pl": "Polish",
+    "sv": "Swedish",
+    "no": "Norwegian",
+    "da": "Danish",
+    "fi": "Finnish",
+    "el": "Greek",
+    "he": "Hebrew",
+    "ro": "Romanian",
+    "hu": "Hungarian",
+    "cs": "Czech",
+    "sk": "Slovak",
+    "uk": "Ukrainian",
+    "vi": "Vietnamese"
+}
+
+LANG_KEYWORDS = {
+    "hindi": "Hindi",
+    "english": "English",
+    "tamil": "Tamil",
+    "telugu": "Telugu",
+    "malayalam": "Malayalam",
+    "kannada": "Kannada",
+    "bengali": "Bengali",
+    "marathi": "Marathi",
+    "punjabi": "Punjabi",
+    "gujarati": "Gujarati",
+    "urdu": "Urdu",
+    "spanish": "Spanish",
+    "french": "French",
+    "german": "German",
+    "italian": "Italian",
+    "portuguese": "Portuguese",
+    "russian": "Russian",
+    "japanese": "Japanese",
+    "korean": "Korean",
+    "chinese": "Chinese",
+    "arabic": "Arabic",
+    "turkish": "Turkish",
+    "thai": "Thai",
+    "indonesian": "Indonesian",
+    "filipino": "Filipino",
+    "dutch": "Dutch",
+    "polish": "Polish",
+    "swedish": "Swedish",
+    "norwegian": "Norwegian",
+    "danish": "Danish",
+    "finnish": "Finnish",
+    "greek": "Greek",
+    "hebrew": "Hebrew",
+    "romanian": "Romanian",
+    "hungarian": "Hungarian",
+    "czech": "Czech",
+    "slovak": "Slovak",
+    "ukrainian": "Ukrainian",
+    "vietnamese": "Vietnamese"
 }
 
 REMOVE_WORDS = [
@@ -62,27 +126,9 @@ def infer_languages_from_caption(caption: str) -> str:
         return ""
     text = caption.lower()
     langs = set()
-
-    if "hindi" in text:
-        langs.add("Hindi")
-    if "english" in text:
-        langs.add("English")
-    if "tamil" in text:
-        langs.add("Tamil")
-    if "telugu" in text:
-        langs.add("Telugu")
-    if "malayalam" in text:
-        langs.add("Malayalam")
-    if "kannada" in text:
-        langs.add("Kannada")
-
-    if "dual audio" in text or "dual-audio" in text:
-        if not langs:
-            langs.update(["Hindi", "English"])
-
-    if "multi audio" in text or "multi-audio" in text:
-        langs.add("Multi Audio")
-
+    for key, value in LANG_KEYWORDS.items():
+        if key in text:
+            langs.add(value)
     return ", ".join(sorted(langs))
 
 def get_audio_languages(message) -> str:
@@ -92,18 +138,6 @@ def get_audio_languages(message) -> str:
         if tg_langs:
             return ", ".join(LANG_MAP.get(l, l.upper()) for l in tg_langs)
     return infer_languages_from_caption(message.caption or "")
-
-@app.on_message(filters.private & filters.command("start"))
-async def start(_, message):
-    await message.reply_text(
-        f"<b>Hello {message.from_user.mention},</b>\n\n<b>I am an AutoCaption Bot 🤖</b>"
-    )
-
-@app.on_message(filters.private & filters.command("help"))
-async def help_cmd(_, message):
-    await message.reply_text(
-        "<b>Send media to a channel and I will edit the caption automatically.</b>"
-    )
 
 @app.on_message(filters.channel)
 async def queue_message(_, message):
@@ -118,9 +152,15 @@ async def process_queue():
             cleaned = clean_caption(msg.caption or "")
             languages = get_audio_languages(msg)
 
-            final_caption = CUSTOM_CAPTION.format(file_caption=cleaned)
             if languages:
-                final_caption += f"\n<b>🔊 Audio:</b> {languages}"
+                final_caption = CUSTOM_CAPTION.format(
+                    file_caption=cleaned,
+                    languages=languages
+                )
+            else:
+                final_caption = CUSTOM_CAPTION.replace(
+                    "\n<b>Audio : {languages}</b>", ""
+                ).format(file_caption=cleaned)
 
             try:
                 await app.edit_message_caption(
