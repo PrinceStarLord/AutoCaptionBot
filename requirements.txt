@@ -1,5 +1,4 @@
 Flask
 gunicorn
 aiohttp
-pyrogram==2.0.106
-ffmpeg
+pyrotgfork[fast]
