@@ -67,6 +67,7 @@ def clean_caption(caption: str) -> str:
 
 def extract_languages(message) -> str:
     media = message.video or message.document or message.audio
+    print("AUDIO LANG META:", getattr(media, "audio_languages", None))
     if not media:
         return ""
 
