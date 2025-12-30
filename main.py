@@ -15,7 +15,6 @@ app = Client(
 )
 
 message_queue = []
-
 FFPROBE_SEMAPHORE = asyncio.Semaphore(1)
 
 LANG_MAP = {
@@ -62,16 +61,16 @@ def clean_caption(caption: str) -> str:
     caption = caption.replace('.', ' ')
     return ' '.join(caption.split())
 
-def extract_languages_from_telegram(message) -> list[str]:
+def extract_languages_from_telegram(message):
     media = message.video or message.document or message.audio
     if not media:
         return []
-    audio_langs = getattr(media, "audio_languages", None)
-    if not audio_langs:
+    langs = getattr(media, "audio_languages", None)
+    if not langs:
         return []
-    return [LANG_MAP.get(code, code.upper()) for code in audio_langs]
+    return [LANG_MAP.get(l, l.upper()) for l in langs]
 
-async def extract_languages_with_ffprobe(message) -> list[str]:
+async def extract_languages_with_ffprobe(message):
     async with FFPROBE_SEMAPHORE:
         media = message.video or message.document
         if not media:
@@ -101,40 +100,27 @@ async def extract_languages_with_ffprobe(message) -> list[str]:
             ]
 
             output = subprocess.check_output(cmd).decode().splitlines()
-            langs = set()
+            result = set()
 
             for lang in output:
                 lang = lang.strip().lower()
                 if lang:
-                    langs.add(LANG_MAP.get(lang, lang.upper()))
+                    result.add(LANG_MAP.get(lang, lang.upper()))
 
-            return sorted(langs)
+            return sorted(result)
 
         except Exception as e:
             print(f"[ffprobe error] {e}")
             return []
 
         finally:
-            if os.path.exists(tmp.name):
-                os.remove(tmp.name)
+            os.remove(tmp.name)
 
-async def get_audio_languages(message) -> str:
+async def get_audio_languages(message):
     langs = extract_languages_from_telegram(message)
     if not langs:
         langs = await extract_languages_with_ffprobe(message)
     return ", ".join(langs)
-
-@app.on_message(filters.private & filters.command("start"))
-async def start(_, message):
-    await message.reply_text(
-        f"<b>Hello {message.from_user.mention},</b>\n\n<b>I am an AutoCaption Bot 🤖</b>"
-    )
-
-@app.on_message(filters.private & filters.command("help"))
-async def help_cmd(_, message):
-    await message.reply_text(
-        "<b>Send media to a channel and I will edit the caption automatically.</b>"
-    )
 
 @app.on_message(filters.channel)
 async def queue_message(_, message):
@@ -155,8 +141,8 @@ async def process_queue():
 
             try:
                 await app.edit_message_caption(
-                    chat_id=msg.chat.id,
-                    message_id=msg.id,
+                    msg.chat.id,
+                    msg.id,
                     caption=final_caption
                 )
             except MessageNotModified:
@@ -164,8 +150,6 @@ async def process_queue():
             except FloodWait as e:
                 await asyncio.sleep(e.value + 1)
                 message_queue.insert(0, msg)
-            except Exception as e:
-                print(f"[ERROR] {e} | Msg ID: {msg.id}")
 
         await asyncio.sleep(1)
 
