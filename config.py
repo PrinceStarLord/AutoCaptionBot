@@ -7,6 +7,4 @@ CUSTOM_CAPTION = os.environ.get(
     "CUSTOM_CAPTION",
     "<b>{file_caption}</b>\n\n<b>JOIN 💎 : @M2LINKS</b>"
 )
-
-# ✅ MUST be a list[int]
 ADMINS = list(map(int, os.environ.get("ADMINS", "6167872503").split()))
