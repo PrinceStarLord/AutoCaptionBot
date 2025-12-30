@@ -1,5 +1,8 @@
 import asyncio
 import re
+import os
+import tempfile
+import subprocess
 from pyrogram import Client, filters, idle
 from pyrogram.errors import FloodWait, MessageNotModified
 from config import API_ID, API_HASH, BOT_TOKEN, CUSTOM_CAPTION, ADMINS
@@ -12,6 +15,8 @@ app = Client(
 )
 
 message_queue = []
+
+FFPROBE_SEMAPHORE = asyncio.Semaphore(1)
 
 LANG_MAP = {
     "en": "English",
@@ -57,15 +62,63 @@ def clean_caption(caption: str) -> str:
     caption = caption.replace('.', ' ')
     return ' '.join(caption.split())
 
-def extract_languages(message) -> str:
+def extract_languages_from_telegram(message) -> list[str]:
     media = message.video or message.document or message.audio
     if not media:
-        return ""
+        return []
     audio_langs = getattr(media, "audio_languages", None)
     if not audio_langs:
-        return ""
-    readable = [LANG_MAP.get(code, code.upper()) for code in audio_langs]
-    return ", ".join(sorted(set(readable)))
+        return []
+    return [LANG_MAP.get(code, code.upper()) for code in audio_langs]
+
+async def extract_languages_with_ffprobe(message) -> list[str]:
+    async with FFPROBE_SEMAPHORE:
+        media = message.video or message.document
+        if not media:
+            return []
+
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".mkv")
+        tmp.close()
+
+        try:
+            await app.download_media(
+                message,
+                file_name=tmp.name,
+                offset=0,
+                limit=3 * 1024 * 1024
+            )
+
+            cmd = [
+                "ffprobe", "-v", "error",
+                "-select_streams", "a",
+                "-show_entries", "stream_tags=language",
+                "-of", "csv=p=0",
+                tmp.name
+            ]
+
+            output = subprocess.check_output(cmd).decode().splitlines()
+            langs = set()
+
+            for lang in output:
+                lang = lang.strip().lower()
+                if lang:
+                    langs.add(LANG_MAP.get(lang, lang.upper()))
+
+            return sorted(langs)
+
+        except Exception as e:
+            print(f"[ffprobe error] {e}")
+            return []
+
+        finally:
+            if os.path.exists(tmp.name):
+                os.remove(tmp.name)
+
+async def get_audio_languages(message) -> str:
+    langs = extract_languages_from_telegram(message)
+    if not langs:
+        langs = await extract_languages_with_ffprobe(message)
+    return ", ".join(langs)
 
 @app.on_message(filters.private & filters.command("start"))
 async def start(_, message):
@@ -81,7 +134,7 @@ async def help_cmd(_, message):
 
 @app.on_message(filters.channel)
 async def queue_message(_, message):
-    if not (message.video or message.document or message.audio):
+    if not (message.video or message.document):
         return
     message_queue.append(message)
 
@@ -90,10 +143,12 @@ async def process_queue():
         if message_queue:
             msg = message_queue.pop(0)
             cleaned = clean_caption(msg.caption or "")
-            languages = extract_languages(msg)
+            languages = await get_audio_languages(msg)
+
             final_caption = CUSTOM_CAPTION.format(file_caption=cleaned)
             if languages:
                 final_caption += f"\n<b>🔊 Audio:</b> {languages}"
+
             try:
                 await app.edit_message_caption(
                     chat_id=msg.chat.id,
@@ -107,6 +162,7 @@ async def process_queue():
                 message_queue.insert(0, msg)
             except Exception as e:
                 print(f"[ERROR] {e} | Msg ID: {msg.id}")
+
         await asyncio.sleep(1)
 
 @app.on_message(filters.command("status") & filters.user(ADMINS))
