@@ -69,9 +69,11 @@ async def process_queue():
                 print(f"[❌ ERROR] {e} | Msg ID: {msg['message_id']}")
         await asyncio.sleep(1)
 
-@app.on_message(filters.command("status") & filters.user(6167872503))
+@app.on_message(filters.command("status") & filters.user(ADMINS))
 async def queue_status(_, message):
-    await message.reply_text(f"📦 Messages in queue: {len(message_queue)}")
+    await message.reply_text(
+        f"📦 Messages in queue: {len(message_queue)}"
+    )
 
 def main():
     print("Bot is running...")
