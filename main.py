@@ -81,8 +81,12 @@ async def extract_languages_with_ffprobe(message) -> list[str]:
         tmp.close()
 
         try:
-            await app.download_media(
-                message,
+            file = await app.get_file(media.file_id)
+
+            await app.download_file(
+                file_id=file.file_id,
+                file_ref=file.file_ref,
+                location=file.location,
                 file_name=tmp.name,
                 offset=0,
                 limit=3 * 1024 * 1024
