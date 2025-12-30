@@ -80,7 +80,13 @@ async def extract_languages_with_ffprobe(message):
         tmp.close()
 
         try:
-            file = await app.get_file(media.file_id)
+            file = None
+            async for f in app.get_file(media.file_id):
+                file = f
+                break
+
+            if not file:
+                return []
 
             await app.download_file(
                 file_id=file.file_id,
@@ -100,21 +106,22 @@ async def extract_languages_with_ffprobe(message):
             ]
 
             output = subprocess.check_output(cmd).decode().splitlines()
-            result = set()
+            langs = set()
 
             for lang in output:
                 lang = lang.strip().lower()
                 if lang:
-                    result.add(LANG_MAP.get(lang, lang.upper()))
+                    langs.add(LANG_MAP.get(lang, lang.upper()))
 
-            return sorted(result)
+            return sorted(langs)
 
         except Exception as e:
             print(f"[ffprobe error] {e}")
             return []
 
         finally:
-            os.remove(tmp.name)
+            if os.path.exists(tmp.name):
+                os.remove(tmp.name)
 
 async def get_audio_languages(message):
     langs = extract_languages_from_telegram(message)
